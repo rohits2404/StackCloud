@@ -18,8 +18,7 @@ export const ButtonWithLoading = ({
             onClick={onClick}
             disabled={loading}
         >
-            {label}
-            {loading ? <Spinner className="w-6 h-6" /> : null}
+            {loading ? <Spinner className="w-6 h-6" /> : label}
         </button>
     );
 };

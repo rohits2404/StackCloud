@@ -5,6 +5,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { CustomInput } from "./CustomInput";
 import { Mail, UserRoundPen } from "lucide-react";
 import { ButtonWithLoading } from "./ButtonWithLoading";
+import { isValidEmail } from "@/lib/utils";
+import { createAccount } from "@/lib/appwrite/user.actions";
 
 export const Auth = () => {
     const [formData, setFormData] = useState({
@@ -14,8 +16,12 @@ export const Auth = () => {
     const [email, setEmail] = useState("");
     const [tabValue, setTableValue] = useState("signIn");
     const [loading, setLoading] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
+    const [accountId, setAccountId] = useState("");
 
-    const handleTabValueChange = () => {};
+    const handleTabValueChange = (value: string) => {
+        setTableValue(value);
+    };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -32,7 +38,38 @@ export const Auth = () => {
         setEmail(e.target.value);
     };
 
-    const handleContinueClick = () => {};
+    const handleContinueClick = async () => {
+        const { fullName, registerEmail } = formData || {};
+
+        if (!fullName && tabValue === "signUp") {
+            setErrorMessage("Full Name Is Required");
+            return;
+        }
+
+        if (!isValidEmail(registerEmail) && !isValidEmail(email)) {
+            setErrorMessage("Invalid Email");
+            return;
+        }
+
+        try {
+            setLoading(true);
+
+            const user = await createAccount({
+                fullName,
+                email: registerEmail,
+            });
+            if (user.accountId) {
+                setAccountId(user.accountId);
+            }
+            setErrorMessage(user.message);
+            setLoading(false);
+        } catch (error) {
+            setErrorMessage("Sign In Failed. Please Try Again");
+            console.log("Sign In Failed", error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
         <div className="flex flex-col items-center justify-center h-full">
@@ -88,7 +125,7 @@ export const Auth = () => {
                                 labelHtmlFor="email"
                                 value={formData.registerEmail}
                                 onChange={handleChange}
-                                inputName="email"
+                                inputName="registerEmail"
                             />
                         </div>
                     </TabsContent>
