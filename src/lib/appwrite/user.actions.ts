@@ -3,6 +3,7 @@
 import { ID, Query } from "node-appwrite";
 import { createAdminClient } from "./index";
 import { appwriteConfig } from "./config";
+import { cookies } from "next/headers";
 
 export const getUserByEmail = async (email: string) => {
     const { databases } = await createAdminClient();
@@ -69,4 +70,56 @@ export const createAccount = async ({
         accountId,
         message: "User Created Successfully",
     };
+};
+
+export const signInUser = async (email: string) => {
+    const existingUser = await getUserByEmail(email);
+
+    if (!existingUser) {
+        return {
+            accountId: null,
+            message: "Failed To Sign In, User Doesn't Exist",
+        };
+    }
+
+    const accountId = await sendEmailOTP(email);
+
+    return { accountId, message: "User Signed-In Successfully" };
+};
+
+export const verifySecret = async ({
+    accountId,
+    password,
+}: {
+    accountId: string;
+    password: string;
+}) => {
+    try {
+        const { account } = await createAdminClient();
+
+        const session = await account.createSession({
+            userId: accountId,
+            secret: password,
+        });
+
+        const cookieStore = await cookies();
+
+        cookieStore.set("appwrite-session", session.$id, {
+            path: "/",
+            httpOnly: true,
+            sameSite: "strict",
+            secure: true,
+        });
+
+        cookieStore.set("appwrite-user-id", accountId, {
+            path: "/",
+            httpOnly: true,
+            sameSite: "strict",
+            secure: true,
+        });
+
+        return { sessionId: session.$id };
+    } catch (error) {
+        console.log("Failed To Verify OTP", error);
+    }
 };

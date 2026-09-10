@@ -6,7 +6,8 @@ import { CustomInput } from "./CustomInput";
 import { Mail, UserRoundPen } from "lucide-react";
 import { ButtonWithLoading } from "./ButtonWithLoading";
 import { isValidEmail } from "@/lib/utils";
-import { createAccount } from "@/lib/appwrite/user.actions";
+import { createAccount, signInUser } from "@/lib/appwrite/user.actions";
+import { OTPModal } from "./OTPModal";
 
 export const Auth = () => {
     const [formData, setFormData] = useState({
@@ -54,10 +55,13 @@ export const Auth = () => {
         try {
             setLoading(true);
 
-            const user = await createAccount({
-                fullName,
-                email: registerEmail,
-            });
+            const user =
+                tabValue === "signIn"
+                    ? await signInUser(email)
+                    : await createAccount({
+                          fullName,
+                          email: registerEmail,
+                      });
             if (user.accountId) {
                 setAccountId(user.accountId);
             }
@@ -134,7 +138,20 @@ export const Auth = () => {
                     loading={loading}
                     onClick={handleContinueClick}
                 />
+                {errorMessage ? (
+                    <span className="bg-flory/10 font-medium py-4 px-8 text-flory rounded-xl w-full flex items-center justify-center mt-8">
+                        *{errorMessage}
+                    </span>
+                ) : null}
             </div>
+            {accountId ? (
+                <OTPModal
+                    accountId={accountId}
+                    email={
+                        tabValue === "signIn" ? email : formData.registerEmail
+                    }
+                />
+            ) : null}
         </div>
     );
 };
