@@ -6,6 +6,7 @@ import { appwriteConfig } from "./config";
 import { constructFileUrl, getFileType, parseObj } from "../utils";
 import { revalidatePath } from "next/cache";
 import { getCurrentUser } from "./user.actions";
+import { RenameFile } from "@/types";
 
 export const uploadFile = async ({
     file,
@@ -118,5 +119,32 @@ export const getFiles = async ({
         return parseObj(files);
     } catch (error) {
         console.log("Failed To Retrieve Files", error);
+    }
+};
+
+export const renameFile = async ({
+    fileId,
+    name,
+    extension,
+    path,
+}: RenameFile) => {
+    const { databases } = await createAdminClient();
+
+    try {
+        const newFileName = `${name}.${extension}`;
+        const updatedFile = await databases.updateRow({
+            databaseId: appwriteConfig.databaseId,
+            tableId: appwriteConfig.filesCollectionId,
+            rowId: fileId,
+            data: {
+                name: newFileName,
+            },
+        });
+
+        revalidatePath(path);
+
+        return parseObj(updatedFile);
+    } catch (error) {
+        console.log("Failed To Rename The File", error);
     }
 };

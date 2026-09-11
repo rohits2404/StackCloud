@@ -24,8 +24,12 @@ import { useState } from "react";
 import { ActionItem } from "@/types";
 import { Input } from "./ui/input";
 import { ButtonWithLoading } from "./ButtonWithLoading";
+import { usePathname } from "next/navigation";
+import { renameFile } from "@/lib/appwrite/file.actions";
 
 export const ActionDropdown = ({ file }: { file: Models.DefaultRow }) => {
+    const path = usePathname();
+
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isActionListOpen, setIsActionListOpen] = useState(false);
     const [actionItem, setActionItem] = useState<ActionItem | null>(null);
@@ -41,7 +45,28 @@ export const ActionDropdown = ({ file }: { file: Models.DefaultRow }) => {
         setEmails([""]);
     };
 
-    const handleAction = () => {};
+    const handleAction = async () => {
+        if (!actionItem) {
+            return;
+        }
+        setLoading(true);
+        let success = false;
+        const actions = {
+            rename: () => {
+                return renameFile({
+                    fileId: file.$id,
+                    name: fileName,
+                    extension: file.extension,
+                    path,
+                });
+            },
+        };
+        success = await actions[actionItem.value as keyof typeof actions]();
+        if (success) {
+            handleCloseAllModals();
+        }
+        setLoading(false);
+    };
 
     const renderDialogContent = () => {
         if (!isModalOpen) {
