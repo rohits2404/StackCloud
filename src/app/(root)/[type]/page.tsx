@@ -22,28 +22,25 @@ const Page = async ({
     const files = await getFiles({ types: fileType, query, filter });
 
     return (
-        <div className="flex flex-col gap-4 px-4 mt-4">
+        <div className="flex h-full min-h-0 flex-col gap-4 px-4 py-4">
             <div className="flex justify-between">
                 <span className="font-semibold text-2xl capitalize">
                     {type}
                 </span>
-                {/* Filter */}
+
                 <span>Filter</span>
             </div>
 
-            {/* Total Size */}
-            <span>Total </span>
+            <span>Total</span>
 
-            <div className="flex flex-wrap gap-4.5 overflow-y-scroll h-144 no-scrollbar">
-                {files?.rows?.map((file: Models.DefaultRow) => {
-                    return (
-                        <Card
-                            key={file.$id}
-                            file={file}
-                            fullName={currentUser.fullName}
-                        />
-                    );
-                })}
+            <div className="flex flex-1 flex-wrap content-start gap-4 overflow-y-auto no-scrollbar">
+                {files?.rows?.map((file: Models.DefaultRow) => (
+                    <Card
+                        key={file.$id}
+                        file={file}
+                        fullName={currentUser.fullName}
+                    />
+                ))}
             </div>
         </div>
     );

@@ -19,18 +19,17 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
     }
 
     return (
-        <main className="flex h-screen bg-white">
-            <div>
-                <Sidebar fullName={user?.fullName} fileSize={"100"} />
-            </div>
-            <section className="flex h-full flex-1 flex-col">
-                <div>
-                    <Header ownerId={user.$id} accountId={user.accountId} />
-                </div>
-                <div className="bg-gray-50 shadow m-4 h-full rounded-2xl">
+        <main className="flex h-screen overflow-hidden bg-white">
+            <Sidebar fullName={user?.fullName} fileSize={"100"} />
+
+            <section className="flex min-h-0 flex-1 flex-col overflow-hidden">
+                <Header ownerId={user.$id} accountId={user.accountId} />
+
+                <div className="m-4 flex min-h-0 flex-1 overflow-hidden rounded-2xl bg-gray-50 shadow">
                     {children}
                 </div>
             </section>
+
             <Toaster />
         </main>
     );

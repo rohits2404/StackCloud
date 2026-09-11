@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Models } from "node-appwrite";
 import { Preview } from "./Preview";
 import { formatDateTime, getFileSize } from "@/lib/utils";
+import { ActionDropdown } from "./ActionDropdown";
 
 export const Card = ({
     file,
@@ -24,8 +25,7 @@ export const Card = ({
                 />
 
                 <div className="flex flex-col items-end justify-between h-full">
-                    {/* ActionDropdown */}
-                    <span>Action</span>
+                    <ActionDropdown file={file} />
                     <span className="text-gray-500 font-medium text-sm">
                         {getFileSize(file.size)}
                     </span>
