@@ -26,6 +26,7 @@ import { Input } from "./ui/input";
 import { ButtonWithLoading } from "./ButtonWithLoading";
 import { usePathname } from "next/navigation";
 import { renameFile } from "@/lib/appwrite/file.actions";
+import { FileDetails } from "./FileDetails";
 
 export const ActionDropdown = ({ file }: { file: Models.DefaultRow }) => {
     const path = usePathname();
@@ -89,7 +90,7 @@ export const ActionDropdown = ({ file }: { file: Models.DefaultRow }) => {
                         />
                     )}
 
-                    {value === "details" && <span>FileDetails</span>}
+                    {value === "details" && <FileDetails file={file} />}
 
                     {value === "share" && <span>Share</span>}
 

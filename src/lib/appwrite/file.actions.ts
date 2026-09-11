@@ -148,3 +148,19 @@ export const renameFile = async ({
         console.log("Failed To Rename The File", error);
     }
 };
+
+export const getFileOwnerDetails = async (ownerId: string) => {
+    const { databases } = await createAdminClient();
+
+    try {
+        const user = await databases.listRows({
+            databaseId: appwriteConfig.databaseId,
+            tableId: appwriteConfig.usersCollectionId,
+            queries: [Query.equal("$id", ownerId)],
+        });
+
+        return user.total > 0 ? parseObj(user.rows[0]) : null;
+    } catch (error) {
+        console.log("Failed To Fetch Owner Details", error);
+    }
+};
