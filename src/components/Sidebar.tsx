@@ -1,7 +1,7 @@
 "use client";
 
-import { SIDEBAR_ITEMS, USER_ICON } from "@/lib/constants";
-import { cn } from "@/lib/utils";
+import { MAX_STORAGE, SIDEBAR_ITEMS, USER_ICON } from "@/lib/constants";
+import { cn, getFileSize } from "@/lib/utils";
 import { Layers } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -13,9 +13,11 @@ export const Sidebar = ({
     fileSize,
 }: {
     fullName: string;
-    fileSize: string;
+    fileSize: number;
 }) => {
     const pathname = usePathname();
+
+    const storagePercentage = Math.min((fileSize / MAX_STORAGE) * 100, 100);
 
     return (
         <aside className="w-60 shrink-0 min-h-screen bg-white p-3 pt-7 flex flex-col">
@@ -67,10 +69,10 @@ export const Sidebar = ({
                     <span className="text-white font-medium">Storage</span>
 
                     <span className="text-sm text-white">
-                        {fileSize} Of 6GB
+                        {getFileSize(fileSize)} / 6 GB
                     </span>
 
-                    <Progress percentage={90} />
+                    <Progress percentage={storagePercentage} />
                 </div>
 
                 {/* User */}

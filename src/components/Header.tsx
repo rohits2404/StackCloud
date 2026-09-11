@@ -4,6 +4,7 @@ import { signOutUser } from "@/lib/appwrite/user.actions";
 import { LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { FileUploader } from "./FileUploader";
+import { FileSearch } from "./FileSearch";
 
 export const Header = ({
     ownerId,
@@ -25,8 +26,7 @@ export const Header = ({
 
     return (
         <div className="flex items-center justify-between px-7 mt-6">
-            {/* Search */}
-            <span>Search</span>
+            <FileSearch />
             <div className="flex gap-4">
                 <FileUploader ownerId={ownerId} accountId={accountId} />
                 <button

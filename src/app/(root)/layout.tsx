@@ -1,7 +1,9 @@
 import { Header } from "@/components/Header";
 import { Sidebar } from "@/components/Sidebar";
 import { Toaster } from "@/components/ui/sonner";
+import { getFiles } from "@/lib/appwrite/file.actions";
 import { getCurrentUser } from "@/lib/appwrite/user.actions";
+import { getTotalFileSize, getTotalFileSizeInBytes } from "@/lib/utils";
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
 import React from "react";
@@ -18,9 +20,15 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
         redirect("/auth");
     }
 
+    const files = await getFiles({ types: [], query: "" });
+    const totalSize = getTotalFileSize(files?.rows);
+
     return (
         <main className="flex h-screen overflow-hidden bg-white">
-            <Sidebar fullName={user?.fullName} fileSize={"100"} />
+            <Sidebar
+                fullName={user.name}
+                fileSize={getTotalFileSizeInBytes(files?.rows)}
+            />
 
             <section className="flex min-h-0 flex-1 flex-col overflow-hidden">
                 <Header ownerId={user.$id} accountId={user.accountId} />

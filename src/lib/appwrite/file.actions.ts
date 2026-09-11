@@ -84,6 +84,10 @@ const createQueries = (
     }
 
     // query
+    if (query) {
+        queries.push(Query.search("name", query));
+    }
+
     // filter
     if (filter) {
         const [sortBy, filterBy] = filter.split("-");

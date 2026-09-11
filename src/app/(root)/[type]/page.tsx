@@ -1,8 +1,7 @@
 import { Card } from "@/components/Card";
 import { Filter } from "@/components/Filter";
 import { getFiles } from "@/lib/appwrite/file.actions";
-import { getCurrentUser } from "@/lib/appwrite/user.actions";
-import { getFileTypeParams } from "@/lib/utils";
+import { getFileTypeParams, getTotalFileSize } from "@/lib/utils";
 import { Models } from "node-appwrite";
 import React from "react";
 
@@ -17,7 +16,6 @@ const Page = async ({
     const query = ((await searchParams)?.query as string) || "";
     const filter = ((await searchParams)?.filter as string) || "";
 
-    const currentUser = await getCurrentUser();
     const fileType = getFileTypeParams(type);
 
     const files = await getFiles({
@@ -25,6 +23,8 @@ const Page = async ({
         query,
         filter,
     });
+
+    const totalSize = getTotalFileSize(files?.rows);
 
     return (
         <div className="flex h-full min-h-0 w-full flex-col gap-4 px-4 py-4">
@@ -36,7 +36,7 @@ const Page = async ({
                 <Filter />
             </div>
 
-            <span>Total</span>
+            <span>Total {totalSize}</span>
 
             <div className="flex flex-1 flex-wrap content-start gap-4 overflow-y-auto no-scrollbar">
                 {files?.rows?.map((file: Models.DefaultRow) => (

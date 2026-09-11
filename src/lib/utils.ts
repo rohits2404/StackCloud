@@ -1,3 +1,4 @@
+import { Models } from "node-appwrite";
 import { appwriteConfig } from "./appwrite/config";
 
 export { cn } from "cn";
@@ -186,4 +187,20 @@ export const formatDateTime = (isoString: string) => {
     const year = date.getFullYear();
 
     return `${day} ${month} ${year}`;
+};
+
+export const getTotalFileSizeInBytes = (files: Models.DefaultRow[]) => {
+    let total = 0;
+
+    files?.forEach((file: Models.DefaultRow) => {
+        total += file.size;
+    });
+
+    return total;
+};
+
+export const getTotalFileSize = (files: Models.DefaultRow[]) => {
+    const total = getTotalFileSizeInBytes(files);
+
+    return getFileSize(total);
 };
