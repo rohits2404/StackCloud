@@ -5,3 +5,7 @@ export const isValidEmail = (email: string) => {
 
     return regex.test(email);
 };
+
+export const parseObj = (obj: unknown) => {
+    return JSON.parse(JSON.stringify(obj));
+};

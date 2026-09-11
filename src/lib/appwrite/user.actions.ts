@@ -4,6 +4,8 @@ import { ID, Query } from "node-appwrite";
 import { createAdminClient } from "./index";
 import { appwriteConfig } from "./config";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import { parseObj } from "../utils";
 
 export const getUserByEmail = async (email: string) => {
     const { databases } = await createAdminClient();
@@ -121,5 +123,56 @@ export const verifySecret = async ({
         return { sessionId: session.$id };
     } catch (error) {
         console.log("Failed To Verify OTP", error);
+    }
+};
+
+export const signOutUser = async () => {
+    const cookieStore = await cookies();
+
+    try {
+        const sessionId = cookieStore.get("appwrite-session");
+        if (sessionId?.value) {
+            const { account } = await createAdminClient();
+
+            try {
+                await account.deleteSession({ sessionId: sessionId.value });
+            } catch (error) {
+                console.log(
+                    "Failed To Delete The Session From Appwrite",
+                    error,
+                );
+            }
+        }
+    } catch (error) {
+        console.log("Error During Logout", error);
+    } finally {
+        cookieStore.delete("appwrite-session");
+        cookieStore.delete("appwrite-user-id");
+    }
+
+    redirect("/auth");
+};
+
+export const getCurrentUser = async () => {
+    try {
+        const cookieStore = await cookies();
+        const userId = cookieStore.get("appwrite-user-id");
+
+        if (!userId?.value) {
+            return null;
+        }
+
+        const { databases } = await createAdminClient();
+
+        const user = await databases.listRows({
+            databaseId: appwriteConfig.databaseId,
+            tableId: appwriteConfig.usersCollectionId,
+            queries: [Query.equal("accountId", [userId.value])],
+        });
+
+        return user.total > 0 ? parseObj(user.rows[0]) : null;
+    } catch (error) {
+        console.log("Error While Fetching The Current User", error);
+        return null;
     }
 };
