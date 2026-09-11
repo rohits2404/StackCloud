@@ -35,11 +35,7 @@ const Page = async ({
 
             <div className="flex flex-1 flex-wrap content-start gap-4 overflow-y-auto no-scrollbar">
                 {files?.rows?.map((file: Models.DefaultRow) => (
-                    <Card
-                        key={file.$id}
-                        file={file}
-                        fullName={currentUser.fullName}
-                    />
+                    <Card key={file.$id} file={file} />
                 ))}
             </div>
         </div>

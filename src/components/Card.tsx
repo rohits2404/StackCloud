@@ -4,13 +4,7 @@ import { Preview } from "./Preview";
 import { formatDateTime, getFileSize } from "@/lib/utils";
 import { ActionDropdown } from "./ActionDropdown";
 
-export const Card = ({
-    file,
-    fullName,
-}: {
-    file: Models.DefaultRow;
-    fullName: string;
-}) => {
+export const Card = ({ file }: { file: Models.DefaultRow }) => {
     return (
         <Link
             href={file.url}
@@ -38,7 +32,7 @@ export const Card = ({
             <span className="text-gray-700 font-medium">
                 {formatDateTime(file.$createdAt)}
             </span>
-            <span className="text-gray-600">By: {fullName}</span>
+            <span className="text-gray-600">By: {file.ownerName}</span>
         </Link>
     );
 };

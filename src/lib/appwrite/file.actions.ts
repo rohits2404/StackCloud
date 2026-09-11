@@ -6,7 +6,7 @@ import { appwriteConfig } from "./config";
 import { constructFileUrl, getFileType, parseObj } from "../utils";
 import { revalidatePath } from "next/cache";
 import { getCurrentUser } from "./user.actions";
-import { RenameFile } from "@/types";
+import { RenameFile, ShareFile } from "@/types";
 
 export const uploadFile = async ({
     file,
@@ -116,7 +116,21 @@ export const getFiles = async ({
             queries,
         });
 
-        return parseObj(files);
+        const filesWithOwner = await Promise.all(
+            files.rows.map(async (file) => {
+                const owner = await getFileOwnerDetails(file.ownerId);
+
+                return {
+                    ...file,
+                    ownerName: owner?.fullName || "Unknown User",
+                };
+            }),
+        );
+
+        return {
+            ...parseObj(files),
+            rows: parseObj(filesWithOwner),
+        };
     } catch (error) {
         console.log("Failed To Retrieve Files", error);
     }
@@ -162,5 +176,26 @@ export const getFileOwnerDetails = async (ownerId: string) => {
         return user.total > 0 ? parseObj(user.rows[0]) : null;
     } catch (error) {
         console.log("Failed To Fetch Owner Details", error);
+    }
+};
+
+export const shareFile = async ({ fileId, emails, path }: ShareFile) => {
+    const { databases } = await createAdminClient();
+
+    try {
+        const updatedFile = await databases.updateRow({
+            databaseId: appwriteConfig.databaseId,
+            tableId: appwriteConfig.filesCollectionId,
+            rowId: fileId,
+            data: {
+                users: emails,
+            },
+        });
+
+        revalidatePath(path);
+
+        return parseObj(updatedFile);
+    } catch (error) {
+        console.log("Failed To Share The File", error);
     }
 };
