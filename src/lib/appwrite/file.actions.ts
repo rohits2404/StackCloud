@@ -85,6 +85,15 @@ const createQueries = (
 
     // query
     // filter
+    if (filter) {
+        const [sortBy, filterBy] = filter.split("-");
+        if (filterBy === "asc") {
+            queries.push(Query.orderAsc(sortBy));
+        }
+        if (filterBy === "desc") {
+            queries.push(Query.orderDesc(sortBy));
+        }
+    }
 
     return queries;
 };

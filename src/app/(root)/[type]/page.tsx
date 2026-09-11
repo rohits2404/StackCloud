@@ -1,4 +1,5 @@
 import { Card } from "@/components/Card";
+import { Filter } from "@/components/Filter";
 import { getFiles } from "@/lib/appwrite/file.actions";
 import { getCurrentUser } from "@/lib/appwrite/user.actions";
 import { getFileTypeParams } from "@/lib/utils";
@@ -19,16 +20,20 @@ const Page = async ({
     const currentUser = await getCurrentUser();
     const fileType = getFileTypeParams(type);
 
-    const files = await getFiles({ types: fileType, query, filter });
+    const files = await getFiles({
+        types: fileType,
+        query,
+        filter,
+    });
 
     return (
-        <div className="flex h-full min-h-0 flex-col gap-4 px-4 py-4">
-            <div className="flex justify-between">
+        <div className="flex h-full min-h-0 w-full flex-col gap-4 px-4 py-4">
+            <div className="flex w-full items-center justify-between">
                 <span className="font-semibold text-2xl capitalize">
                     {type}
                 </span>
 
-                <span>Filter</span>
+                <Filter />
             </div>
 
             <span>Total</span>
