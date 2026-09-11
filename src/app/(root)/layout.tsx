@@ -21,19 +21,18 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
     }
 
     const files = await getFiles({ types: [], query: "" });
-    const totalSize = getTotalFileSize(files?.rows);
 
     return (
         <main className="flex h-screen overflow-hidden bg-white">
             <Sidebar
-                fullName={user.name}
+                fullName={user.fullName}
                 fileSize={getTotalFileSizeInBytes(files?.rows)}
             />
 
             <section className="flex min-h-0 flex-1 flex-col overflow-hidden">
                 <Header ownerId={user.$id} accountId={user.accountId} />
 
-                <div className="m-4 flex min-h-0 flex-1 overflow-hidden rounded-2xl bg-gray-50 shadow">
+                <div className="m-4 min-h-0 flex-1 overflow-y-auto rounded-2xl bg-gray-50 shadow">
                     {children}
                 </div>
             </section>

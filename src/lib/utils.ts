@@ -204,3 +204,57 @@ export const getTotalFileSize = (files: Models.DefaultRow[]) => {
 
     return getFileSize(total);
 };
+
+export const getFileSizeByType = (files: Models.DefaultRow[], type: string) => {
+    let size = 0;
+    let created = "";
+
+    if (type === "document") {
+        files.forEach((file) => {
+            if (file.type === "document") {
+                size += file.size;
+                created = formatDateTime(file.$createdAt);
+            }
+        });
+
+        return {
+            size: getFileSize(size),
+            created,
+        };
+    } else if (type === "image") {
+        files.forEach((file) => {
+            if (file.type === "image") {
+                size += file.size;
+                created = formatDateTime(file.$createdAt);
+            }
+        });
+
+        return {
+            size: getFileSize(size),
+            created,
+        };
+    } else if (type === "media") {
+        files.forEach((file) => {
+            if (file.type === "video" || file.type === "audio") {
+                size += file.size;
+                created = formatDateTime(file.$createdAt);
+            }
+        });
+
+        return {
+            size: getFileSize(size),
+            created,
+        };
+    } else
+        files.forEach((file) => {
+            if (file.type === "other") {
+                size += file.size;
+                created = formatDateTime(file.$createdAt);
+            }
+        });
+
+    return {
+        size: getFileSize(size),
+        created,
+    };
+};
