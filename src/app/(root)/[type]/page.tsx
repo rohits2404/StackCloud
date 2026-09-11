@@ -1,3 +1,7 @@
+import { getFiles } from "@/lib/appwrite/file.actions";
+import { getCurrentUser } from "@/lib/appwrite/user.actions";
+import { getFileTypeParams } from "@/lib/utils";
+import { Models } from "node-appwrite";
 import React from "react";
 
 const Page = async ({
@@ -7,15 +11,35 @@ const Page = async ({
     searchParams: Promise<{ query: string; filter: string }>;
     params: Promise<{ type: string }>;
 }) => {
-    const resolvedParams = await params;
-    const resolvedSearchParams = await searchParams;
+    const type = ((await params)?.type as string) || "";
+    const query = ((await searchParams)?.query as string) || "";
+    const filter = ((await searchParams)?.filter as string) || "";
 
-    console.log("params", resolvedParams);
-    console.log("searchParams", resolvedSearchParams);
+    const currentUser = await getCurrentUser();
+    const fileType = getFileTypeParams(type);
 
-    const type = (resolvedParams?.type as string) || "";
+    const files = await getFiles({ types: fileType, query, filter });
 
-    return <div>{type}</div>;
+    return (
+        <div className="flex flex-col gap-4 px-4 mt-4">
+            <div className="flex justify-between">
+                <span className="font-semibold text-2xl capitalize">
+                    {type}
+                </span>
+                {/* Filter */}
+                <span>Filter</span>
+            </div>
+
+            {/* Total Size */}
+            <span>Total </span>
+
+            <div className="flex flex-wrap gap-4.5 overflow-y-scroll h-144 no-scrollbar">
+                {files?.rows?.map((file: Models.DefaultRow) => {
+                    return <span key={file.$id}>{file.name}</span>;
+                })}
+            </div>
+        </div>
+    );
 };
 
 export default Page;

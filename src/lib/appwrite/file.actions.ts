@@ -1,10 +1,11 @@
 "use server";
 
-import { ID } from "node-appwrite";
+import { ID, Models, Query } from "node-appwrite";
 import { createAdminClient } from ".";
 import { appwriteConfig } from "./config";
 import { constructFileUrl, getFileType, parseObj } from "../utils";
 import { revalidatePath } from "next/cache";
+import { getCurrentUser } from "./user.actions";
 
 export const uploadFile = async ({
     file,
@@ -32,10 +33,11 @@ export const uploadFile = async ({
             url: constructFileUrl(bucketFile.$id),
             extension: getFileType(bucketFile.name).extension,
             size: bucketFile.sizeOriginal,
-            owner: ownerId,
+            owner: [ownerId],
             accountId,
             users: [],
             bucketFileId: bucketFile.$id,
+            ownerId,
         };
 
         const newFile = await databases
@@ -59,5 +61,62 @@ export const uploadFile = async ({
         return parseObj(newFile);
     } catch (error) {
         console.log("Failed To Upload File", error);
+    }
+};
+
+const createQueries = (
+    currentUser: Models.DefaultRow,
+    types: string[],
+    query: string,
+    filter: string,
+) => {
+    const queries = [
+        Query.or([
+            Query.equal("ownerId", [currentUser.$id]),
+            Query.contains("users", [currentUser.email]),
+        ]),
+    ];
+
+    // types
+    if (types.length > 0) {
+        queries.push(Query.equal("type", types));
+    }
+
+    // query
+    // filter
+
+    return queries;
+};
+
+export const getFiles = async ({
+    types = [],
+    query,
+    filter = "$createdAt-asc",
+}: {
+    types: string[];
+    query: string;
+    filter?: string;
+}) => {
+    const { databases } = await createAdminClient();
+
+    try {
+        const currentUser = await getCurrentUser();
+
+        if (!currentUser) {
+            console.log("User Not Found");
+            return;
+        }
+
+        const queries = createQueries(currentUser, types, query, filter);
+
+        const files = await databases.listRows({
+            databaseId: appwriteConfig.databaseId,
+            tableId: appwriteConfig.filesCollectionId,
+            queries,
+        });
+
+        return parseObj(files);
+    } catch (error) {
+        console.log("Failed To Retrieve Files", error);
     }
 };

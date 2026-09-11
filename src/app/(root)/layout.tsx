@@ -25,7 +25,7 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
             </div>
             <section className="flex h-full flex-1 flex-col">
                 <div>
-                    <Header ownerId={user.ownerId} accountId={user.accountId} />
+                    <Header ownerId={user.$id} accountId={user.accountId} />
                 </div>
                 <div className="bg-gray-50 shadow m-4 h-full rounded-2xl">
                     {children}
