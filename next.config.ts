@@ -5,11 +5,20 @@ const nextConfig: NextConfig = {
     typescript: {
         ignoreBuildErrors: true,
     },
+    experimental: {
+        serverActions: {
+            bodySizeLimit: "100MB",
+        },
+    },
     images: {
         remotePatterns: [
             {
                 protocol: "https",
                 hostname: "png.pngtree.com",
+            },
+            {
+                protocol: "https",
+                hostname: "cdn-icons-png.flaticon.com",
             },
         ],
     },

@@ -1,0 +1,63 @@
+"use server";
+
+import { ID } from "node-appwrite";
+import { createAdminClient } from ".";
+import { appwriteConfig } from "./config";
+import { constructFileUrl, getFileType, parseObj } from "../utils";
+import { revalidatePath } from "next/cache";
+
+export const uploadFile = async ({
+    file,
+    ownerId,
+    accountId,
+    path,
+}: {
+    file: File;
+    ownerId: string;
+    accountId: string;
+    path: string;
+}) => {
+    const { storage, databases } = await createAdminClient();
+
+    try {
+        const bucketFile = await storage.createFile({
+            bucketId: appwriteConfig.bucketId,
+            fileId: ID.unique(),
+            file,
+        });
+
+        const fileDocument = {
+            type: getFileType(bucketFile.name).type,
+            name: bucketFile.name,
+            url: constructFileUrl(bucketFile.$id),
+            extension: getFileType(bucketFile.name).extension,
+            size: bucketFile.sizeOriginal,
+            owner: ownerId,
+            accountId,
+            users: [],
+            bucketFileId: bucketFile.$id,
+        };
+
+        const newFile = await databases
+            .createRow({
+                databaseId: appwriteConfig.databaseId,
+                tableId: appwriteConfig.filesCollectionId,
+                rowId: ID.unique(),
+                data: fileDocument,
+            })
+            .catch(async (error: unknown) => {
+                await storage.deleteFile({
+                    bucketId: appwriteConfig.bucketId,
+                    fileId: bucketFile.$id,
+                });
+
+                console.log("Failed To Create File", error);
+            });
+
+        revalidatePath(path);
+
+        return parseObj(newFile);
+    } catch (error) {
+        console.log("Failed To Upload File", error);
+    }
+};
