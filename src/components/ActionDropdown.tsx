@@ -25,7 +25,7 @@ import { ActionItem } from "@/types";
 import { Input } from "./ui/input";
 import { ButtonWithLoading } from "./ButtonWithLoading";
 import { usePathname } from "next/navigation";
-import { renameFile, shareFile } from "@/lib/appwrite/file.actions";
+import { deleteFile, renameFile, shareFile } from "@/lib/appwrite/file.actions";
 import { FileDetails } from "./FileDetails";
 import { Share } from "./Share";
 
@@ -66,6 +66,13 @@ export const ActionDropdown = ({ file }: { file: Models.DefaultRow }) => {
                 return shareFile({
                     fileId: file.$id,
                     emails,
+                    path,
+                });
+            },
+            delete: () => {
+                return deleteFile({
+                    fileId: file.$id,
+                    bucketFileId: file.bucketFileId,
                     path,
                 });
             },

@@ -6,7 +6,7 @@ import { appwriteConfig } from "./config";
 import { constructFileUrl, getFileType, parseObj } from "../utils";
 import { revalidatePath } from "next/cache";
 import { getCurrentUser } from "./user.actions";
-import { RenameFile, ShareFile } from "@/types";
+import { DeleteFile, RenameFile, ShareFile } from "@/types";
 
 export const uploadFile = async ({
     file,
@@ -197,5 +197,34 @@ export const shareFile = async ({ fileId, emails, path }: ShareFile) => {
         return parseObj(updatedFile);
     } catch (error) {
         console.log("Failed To Share The File", error);
+    }
+};
+
+export const deleteFile = async ({
+    fileId,
+    bucketFileId,
+    path,
+}: DeleteFile) => {
+    const { storage, databases } = await createAdminClient();
+
+    try {
+        const deletedFile = await databases.deleteRow({
+            databaseId: appwriteConfig.databaseId,
+            tableId: appwriteConfig.filesCollectionId,
+            rowId: fileId,
+        });
+
+        if (deletedFile) {
+            await storage.deleteFile({
+                bucketId: appwriteConfig.bucketId,
+                fileId: bucketFileId,
+            });
+        }
+
+        revalidatePath(path);
+
+        return parseObj({ message: "File Deleted Successfully" });
+    } catch (error) {
+        console.log("Failed To Delete The File", error);
     }
 };
